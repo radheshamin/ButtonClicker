@@ -44,11 +44,11 @@ function storeHighScore(userId, score) {
 
 function getHighScore(userId) {
   const dbRef = firebase.database().ref();
-  dbRef.child("users").child(userId).get().then((snapshot) => {
+  dbRef.child("users").child(userId).once().then((snapshot) => {
     if (snapshot.exists()) {
       // var key = Object.keys(snapshot.val())[0];
-      // console.log(snapshot.val()["highscore"]);
-      console.log(snapshot.val());
+      // console.log(typeof(snapshot.val()["highscore"]));
+      // console.log(snapshot.val());
       return snapshot.val()["highscore"];
     } else {
       console.log("No data available");
@@ -69,7 +69,7 @@ class App extends Component {
     fifth: 0,
     time: 0,
     array : Array.from({length: 10}, () => (Math.floor(Math.random() * 5)) + 1),
-    highscore: getHighScore('curr')
+    highscore: null
   }
 
   setupHighscoreListener(userId) {
