@@ -9,6 +9,46 @@ import {
   Alert
 } from 'react-native'
 
+import firebase from 'firebase/app'
+import 'firebase/database'
+import { getDatabase, ref, set } from "firebase/database";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAOE7QO2hJzOLLlGaf9Ueh0v3UF1PvA6qQ",
+  authDomain: "buttonclicker-21dcb.firebaseapp.com",
+  databaseURL: "https://buttonclicker-21dcb-default-rtdb.firebaseio.com",
+  projectId: "buttonclicker-21dcb",
+  storageBucket: "buttonclicker-21dcb.appspot.com",
+  messagingSenderId: "327662823208",
+  appId: "1:327662823208:web:92383b4a8a60b746e9d21d",
+  measurementId: "G-1H6MRLXCD7"
+};
+
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}else {
+  firebase.app(); // if already initialized, use that one
+}
+
+var database = firebase.database();
+
+
+function storeHighScore(userId, score) {
+  firebase
+    .database()
+    .ref('users/' + userId)
+    .set({
+      highscore: score,
+    });
+}
+
+var leadsRef = database.ref('leads');
+leadsRef.on('value', function(snapshot) {
+    snapshot.forEach(function(childSnapshot) {
+      var childData = childSnapshot.val();
+    });
+});
+
 class App extends Component {
   state = {
     count: 0,
@@ -19,6 +59,13 @@ class App extends Component {
     time: 0,
     array : Array.from({length: 10}, () => (Math.floor(Math.random() * 5)) + 1),
     highscore: null
+  }
+
+  setupHighscoreListener(userId) {
+    firebase.database().ref('users/' + userId).on('value', (snapshot) => {
+      const highScore = snapshot.val().highscore;
+      console.log("New high score: " + highScore);
+    });
   }
 
 
@@ -41,12 +88,14 @@ class App extends Component {
     var numarray = this.state.array;
     if (this.state.array.length == 0){
       var currtime = this.state.time;
-      if (this.state.highscore != null && this.state.highscore < currtime) {
-        currtime = this.state.highscore;
+      if (this.state.highscore == null || this.state.highscore > currtime) {
+        this.setState({
+          highscore: currtime
+        });
+        storeHighScore('curr', currtime);
       }
       this.setState({
         array: Array.from({length: 10}, () => (Math.floor(Math.random() * 5)) + 1),
-        highscore: currtime,
         time: 0
       });
       this.componentDidMount();
