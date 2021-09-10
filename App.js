@@ -11,7 +11,7 @@ import {
 
 import firebase from 'firebase/app'
 import 'firebase/database'
-import { getDatabase, ref, set } from "firebase/database";
+import { getDatabase, ref, set, get, child } from "firebase/database";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAOE7QO2hJzOLLlGaf9Ueh0v3UF1PvA6qQ",
@@ -42,12 +42,23 @@ function storeHighScore(userId, score) {
     });
 }
 
-var leadsRef = database.ref('leads');
-leadsRef.on('value', function(snapshot) {
-    snapshot.forEach(function(childSnapshot) {
-      var childData = childSnapshot.val();
-    });
-});
+function getHighScore(userId) {
+  const dbRef = firebase.database().ref();
+  dbRef.child("users").child(userId).get().then((snapshot) => {
+    if (snapshot.exists()) {
+      // var key = Object.keys(snapshot.val())[0];
+      // console.log(snapshot.val()["highscore"]);
+      console.log(snapshot.val());
+      return snapshot.val()["highscore"];
+    } else {
+      console.log("No data available");
+      return null;
+    }
+  }).catch((error) => {
+    console.error(error);
+  });
+}
+
 
 class App extends Component {
   state = {
@@ -58,7 +69,7 @@ class App extends Component {
     fifth: 0,
     time: 0,
     array : Array.from({length: 10}, () => (Math.floor(Math.random() * 5)) + 1),
-    highscore: null
+    highscore: getHighScore('curr')
   }
 
   setupHighscoreListener(userId) {
