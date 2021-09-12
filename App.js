@@ -9,6 +9,10 @@ import {
   Alert
 } from 'react-native'
 
+/* Weather API imports 
+import { API_KEY } from './utils/WeatherAPI';
+import Weather from './components/Weather'; */
+
 import firebase from 'firebase/app'
 import 'firebase/database'
 import { getDatabase, ref, set, get, child } from "firebase/database";
@@ -69,7 +73,13 @@ class App extends Component {
     fifth: 0,
     time: 0,
     array : Array.from({length: 10}, () => (Math.floor(Math.random() * 5)) + 1),
-    highscore: null
+    highscore: null,
+
+    /* For weather API 
+    isLoading: false,
+    temperature: 0,
+    weatherCondition: null,
+    error: null */
   }
 
   setupHighscoreListener(userId) {
@@ -79,13 +89,23 @@ class App extends Component {
     });
   }
 
-
   componentDidMount() {
     this.intervalID = setInterval(
       () => this.tick(),
       1000
     );
+    /*navigator.geolocation.getCurrentPosition(
+      position => {
+        this.fetchWeather(position.coords.latitude, position.coords.longitude);
+      },
+      error => {
+        this.setState({
+          error: 'Error Getting Weather Condtions'
+        });
+      }
+    ); */
   }
+
   componentWillUnmount() {
     clearInterval(this.intervalID);
   }
@@ -94,6 +114,17 @@ class App extends Component {
       time: this.state.time + 1
     });
   }
+
+  /*
+  fetchWeather(lat = 25, lon = 25) {
+    fetch(
+      `http://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&APPID=${API_KEY}&units=metric`
+    )
+      .then(res => res.json())
+      .then(json => {
+        console.log(json);
+      });
+  } */
 
   checkButtonPress(number) {
     var numarray = this.state.array;
@@ -172,6 +203,14 @@ class App extends Component {
    
     return (
       <View style={styles.container}>
+        {/* Weather API (currently on hold) */}
+
+        {/* Time */}
+        <View>
+          <Text style={styles.sectionTitle}>{Date().toLocaleString()} </Text>
+        </View>
+
+
         <View>
           <Text style={styles.setFontSizeOne}>
             Pattern to copy: {this.state.array }
